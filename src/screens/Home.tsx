@@ -11,7 +11,7 @@ import { logout } from '../redux/slices/authSlice';
 import Products from './Products';
 import { useEffect, useMemo, useState } from 'react';
 import { getProducts } from '../redux/thunks/productThunk';
-import { Ionicons } from 'react-native-vector-icons/Ionicons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const PAGE_SIZE = 6;
 

@@ -1,7 +1,8 @@
 // import { API_BASE_URL } from '@env';
 // export const BASE_URL = API_BASE_URL;
 
-export const BASE_URL = "https://dummyjson.com/";
+// export const BASE_URL = "https://dummyjson.com/";
+export const BASE_URL = "https://sowlab.com/assignment/";
 
 const TIMEOUT_MS = 50000;
 

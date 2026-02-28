@@ -1,64 +1,156 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useRef, useState } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Image,
+    FlatList,
+    Dimensions,
+} from 'react-native';
+import { slides } from '../utils/slides';
+
+const { width } = Dimensions.get('window');
+
 
 const OnboardingScreen = ({ navigation }: any) => {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Onboarding screen</Text>
-            <Text style={styles.subtitle}>
-                Lorem ipsum dolor sit
-            </Text>
-            <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigation.navigate('Login')}
-            >
-                <Text style={styles.buttonText}>Get Started</Text>
-            </TouchableOpacity>
+    const flatListRef = useRef<any>(null);
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const handleNext = () => {
+        if (currentIndex < slides.length - 1) {
+            flatListRef.current.scrollToIndex({
+                index: currentIndex + 1,
+            });
+        } else {
+            navigation.navigate('Login');
+        }
+    };
+
+    const renderItem = ({ item }: any) => (
+        <View style={[styles.slide, { backgroundColor: item.bgColor }]}>
+            <View style={styles.imageContainer}>
+                <Image source={item.image} style={styles.image} resizeMode="contain" />
+            </View>
+            <View style={styles.card}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.description}>{item.description}</Text>
+                <View style={styles.dotsContainer}>
+                    {slides.map((_, index) => (
+                        <View
+                            key={index}
+                            style={[
+                                styles.dot,
+                                currentIndex === index && styles.activeDot,
+                            ]}
+                        />
+                    ))}
+                </View>
+                <TouchableOpacity
+                    style={[styles.button, { backgroundColor: item.bgColor }]}
+                    onPress={handleNext}
+                >
+                    <Text style={styles.buttonText}>Join the movement</Text>
+                </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                        <Text style={styles.loginText}>Login</Text>
+                    </TouchableOpacity>
+            </View>
         </View>
+    );
+
+    return (
+        <FlatList
+            ref={flatListRef}
+            data={slides}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            onMomentumScrollEnd={(event) => {
+                const index = Math.round(
+                    event.nativeEvent.contentOffset.x / width
+                );
+                setCurrentIndex(index);
+            }}
+        />
     );
 };
 
 export default OnboardingScreen;
 
 const styles = StyleSheet.create({
-    container: {
+    slide: {
+        width: width,
         flex: 1,
-        backgroundColor: '#E2EAFF',
+    },
+
+    imageContainer: {
+        flex: 1.2,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20,
     },
+
+    image: {
+        width: '100%',
+        height: '100%',
+    },
+
+    card: {
+        flex: 1,
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 40,
+        borderTopRightRadius: 40,
+        padding: 25,
+        alignItems: 'center',
+    },
+
     title: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: 'bold',
-        color: '#1646e4',
-        marginBottom: 10,
+        marginBottom: 12,
     },
-    subtitle: {
-        fontSize: 16,
-        color: '#555',
+
+    description: {
+        fontSize: 14,
+        color: '#666',
         textAlign: 'center',
-        marginBottom: 30,
+        marginBottom: 20,
     },
-    features: {
-        marginBottom: 40,
+
+    dotsContainer: {
+        flexDirection: 'row',
+        marginBottom: 25,
     },
-    feature: {
-        fontSize: 16,
-        color: '#333',
-        marginVertical: 5,
-        textAlign: 'center',
+
+    dot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#ccc',
+        marginHorizontal: 5,
     },
+
+    activeDot: {
+        backgroundColor: '#000',
+    },
+
     button: {
-        backgroundColor: '#1646e4',
         paddingVertical: 14,
         paddingHorizontal: 40,
         borderRadius: 30,
-        elevation: 3,
+        marginBottom: 15,
     },
+
     buttonText: {
         color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontWeight: '500',
+        fontSize: 18,
+    },
+
+    loginText: {
+        fontSize: 14,
+        textDecorationLine: 'underline',
     },
 });
