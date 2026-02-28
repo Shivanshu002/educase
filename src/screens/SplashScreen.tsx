@@ -11,10 +11,7 @@ export default class SplashScreen extends Component<any> {
     render() {
         return (
             <View style={styles.container}>
-                <Text style={styles.title}>Smart Education App</Text>
-                <Text style={styles.subtitle}>
-                    Learn • Practice • Succeed
-                </Text>
+                <Text style={styles.title}>Farmer Eats</Text>
             </View>
         );
     }

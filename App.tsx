@@ -15,6 +15,7 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import Profile from './src/screens/Profile';
 import Ryde from './src/screens/Ryde';
+import Register from './src/screens/Register';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -100,7 +101,6 @@ const AuthLoader = () => {
   return null;
 };
 
-
 const RootNavigator = () => {
   const { isLoggedIn } = useSelector((state: RootState) => state.auth);
 
@@ -113,6 +113,7 @@ const RootNavigator = () => {
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={Register} />
         </>
       )}
     </Stack.Navigator>

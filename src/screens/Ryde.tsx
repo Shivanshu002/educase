@@ -4,7 +4,7 @@ import React from 'react'
 const Ryde = () => {
     return (
         <View>
-            <Text>Courses</Text>
+            <Text>Training</Text>
         </View>
     )
 }

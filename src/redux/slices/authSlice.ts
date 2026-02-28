@@ -35,6 +35,22 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    RegistStart(state) {
+      state.loading = true;
+      state.error = null;
+    },
+
+    RegistSuccess(state, action: PayloadAction<any>) {
+      state.loading = false;
+      state.user = action.payload;
+      state.isLoggedIn = true;
+      AsyncStorage.setItem('user', JSON.stringify(action.payload));
+    },
+
+    RegistFailure(state, action: PayloadAction<string>) {
+      state.loading = false;
+      state.error = action.payload;
+    },
 
     logout(state) {
       state.user = null;
@@ -55,6 +71,9 @@ export const {
   loginFailure,
   logout,
   setUserFromStorage,
+  RegistFailure,
+  RegistSuccess,
+  RegistStart
 } = authSlice.actions;
 
 export default authSlice.reducer;
