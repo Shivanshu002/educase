@@ -1,97 +1,203 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Educase — React Native App
 
-# Getting Started
+A full-featured React Native mobile application with authentication flow, Redux state management, and bottom tab navigation.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## Tech Stack
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+| Layer | Technology |
+|---|---|
+| Framework | React Native 0.83.1 |
+| Language | TypeScript |
+| State Management | Redux Toolkit + React Redux |
+| Navigation | React Navigation (Stack + Bottom Tabs) |
+| Storage | AsyncStorage |
+| HTTP / API | Custom service layer (`src/services`) |
+| Icons | react-native-vector-icons (Ionicons) |
+| Animations | react-native-reanimated + Worklets |
+| Env Config | react-native-dotenv |
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+---
+
+## Folder Structure
+
+```
+educase/
+│
+├── App.tsx                        ← Root component (Provider + Navigation setup)
+├── index.js                       ← Entry point
+├── .env                           ← Environment variables (API base URL, etc.)
+│
+├── src/
+│   │
+│   ├── screens/                   ← All UI screens
+│   │   ├── SplashScreen.tsx       ← App launch screen
+│   │   ├── OnboardingScreen.tsx   ← First-time user onboarding slides
+│   │   ├── LoginScreen.tsx        ← Login form
+│   │   ├── Register.tsx           ← Registration form
+│   │   ├── ForgotPassword.tsx     ← Forgot password entry
+│   │   ├── VerifyOtp.tsx          ← OTP verification
+│   │   ├── ResetPassword.tsx      ← New password form
+│   │   ├── Home.tsx               ← Main home tab
+│   │   ├── Ryde.tsx               ← Ryde/list tab
+│   │   ├── Profile.tsx            ← Profile/stats tab
+│   │   └── Products.tsx           ← Products listing screen
+│   │
+│   ├── components/                ← Reusable UI components
+│   │   └── Input.tsx              ← Custom text input component
+│   │
+│   ├── redux/                     ← Global state management
+│   │   ├── store.ts               ← Redux store configuration
+│   │   ├── slices/
+│   │   │   ├── authSlice.ts       ← Auth state (isLoggedIn, user, token)
+│   │   │   └── productSlice.ts    ← Products state (list, loading, error)
+│   │   └── thunks/
+│   │       ├── authThunk.ts       ← Async actions: login, register, OTP, reset
+│   │       └── productThunk.ts    ← Async actions: fetch products
+│   │
+│   ├── services/
+│   │   └── index.ts               ← Axios/fetch instance + API call helpers
+│   │
+│   ├── utils/
+│   │   ├── constants.ts           ← App-wide constants
+│   │   ├── routers.ts             ← API endpoint URL map
+│   │   └── slides.ts              ← Onboarding slide data
+│   │
+│   ├── styles/                    ← Shared style definitions
+│   │
+│   └── assest/                    ← Static image assets
+│       ├── login.png
+│       ├── user.png
+│       ├── Group.png
+│       ├── Group 44.png
+│       └── Group 46.png
+│
+└── android/                       ← Android native project
+```
+
+---
+
+## App Flow Graph
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                        App.tsx                          │
+│  Redux Provider → SafeAreaProvider → NavigationContainer│
+└───────────────────────────┬─────────────────────────────┘
+                            │
+                    ┌───────▼────────┐
+                    │  AuthLoader    │  ← Reads AsyncStorage on mount
+                    │                │    dispatches setUserFromStorage
+                    └───────┬────────┘
+                            │
+                    ┌───────▼────────┐
+                    │ RootNavigator  │  ← Checks isLoggedIn from Redux
+                    └───┬───────┬───┘
+                        │       │
+          isLoggedIn=false     isLoggedIn=true
+                        │       │
+          ┌─────────────▼─┐   ┌─▼──────────────┐
+          │  Auth Stack   │   │  Tab Navigator  │
+          │               │   │                 │
+          │  Splash       │   │  🏠 Home        │
+          │  Onboarding   │   │  📋 Ryde        │
+          │  Login        │   │  📊 Profile     │
+          │  Register     │   └─────────────────┘
+          │  ForgotPwd    │
+          │  VerifyOtp    │
+          │  ResetPwd     │
+          └───────────────┘
+```
+
+---
+
+## Redux State Graph
+
+```
+┌──────────────────────────────────────────────────────┐
+│                    Redux Store                       │
+│                                                      │
+│  ┌─────────────────────┐  ┌────────────────────────┐ │
+│  │     authSlice       │  │    productSlice        │ │
+│  │                     │  │                        │ │
+│  │  isLoggedIn: bool   │  │  products: []          │ │
+│  │  user: object|null  │  │  loading: bool         │ │
+│  │  token: string|null │  │  error: string|null    │ │
+│  └──────────┬──────────┘  └──────────┬─────────────┘ │
+│             │                        │               │
+│  ┌──────────▼──────────┐  ┌──────────▼─────────────┐ │
+│  │    authThunk        │  │    productThunk        │ │
+│  │                     │  │                        │ │
+│  │  loginUser()        │  │  fetchProducts()       │ │
+│  │  registerUser()     │  └────────────────────────┘ │
+│  │  forgotPassword()   │                             │
+│  │  verifyOtp()        │                             │
+│  │  resetPassword()    │                             │
+│  └─────────────────────┘                             │
+└──────────────────────────────────────────────────────┘
+```
+
+---
+
+## API Endpoints (src/utils/routers.ts)
+
+```
+user/login           ← POST  Login with email + password
+user/register        ← POST  Create new account
+user/forgot-password ← POST  Request OTP to email
+user/verify-otp      ← POST  Verify OTP code
+user/reset-password  ← POST  Set new password
+products             ← GET   Fetch product list
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node >= 20
+- JDK 17+
+- Android Studio / Xcode
+- React Native CLI
+
+### Install
 
 ```sh
-# Using npm
+npm install
+```
+
+### Environment Setup
+
+Create a `.env` file in the root:
+
+```env
+API_BASE_URL=https://your-api-url.com/
+```
+
+### Run
+
+```sh
+# Start Metro bundler
 npm start
 
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
+# Android
 npm run android
 
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
+# iOS (install pods first)
 bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
 bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+---
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## Scripts
 
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+| Command | Description |
+|---|---|
+| `npm start` | Start Metro dev server |
+| `npm run android` | Build & run on Android |
+| `npm run ios` | Build & run on iOS |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run Jest tests |
