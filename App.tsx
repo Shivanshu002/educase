@@ -16,6 +16,9 @@ import LoginScreen from './src/screens/LoginScreen';
 import Profile from './src/screens/Profile';
 import Ryde from './src/screens/Ryde';
 import Register from './src/screens/Register';
+import ForgotPassword from './src/screens/ForgotPassword';
+import VerifyOtp from './src/screens/VerifyOtp';
+import ResetPassword from './src/screens/ResetPassword';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -114,6 +117,9 @@ const RootNavigator = () => {
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={Register} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+          <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
+          <Stack.Screen name="ResetPassword" component={ResetPassword} />
         </>
       )}
     </Stack.Navigator>
