@@ -149,7 +149,9 @@ const Register = () => {
                         <Input label="Password" value={formData.password} secure onChange={t => updateField('password', t)} />
 
                         <View style={styles.bottomRow}>
-                            <Text style={styles.loginText}>Login</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                                <Text style={styles.loginText}>Login</Text>
+                            </TouchableOpacity>
                             <TouchableOpacity style={styles.primaryBtn} onPress={() => setStep(2)}>
                                 <Text style={styles.primaryText}>Continue</Text>
                             </TouchableOpacity>

@@ -76,7 +76,7 @@ const LoginScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.forgot}>
+            <TouchableOpacity style={styles.forgot} onPress={() => navigation.navigate('ForgotPassword')}>
                 <Text style={styles.forgotText}>Forgot?</Text>
             </TouchableOpacity>
 
@@ -110,7 +110,7 @@ const LoginScreen = () => {
 
             <View style={styles.registerRow}>
                 <Text>New One </Text>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
                     <Text style={styles.registerText}>Register</Text>
                 </TouchableOpacity>
             </View>
